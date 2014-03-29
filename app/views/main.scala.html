@@ -1,0 +1,37 @@
+@(title: String)(content: Html)(implicit session: play.api.mvc.Session)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>@title</title>
+        <link href="@routes.Assets.at("stylesheets/font-awesome-4.0.3/css/font-awesome.min.css")" rel="stylesheet">
+        <link href="http://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/jpeg" href="@routes.Assets.at("images/delorean.jpeg")">
+        <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+    </head>
+    <body>
+        <div id="main-menu">
+            <div class="image-home">
+                <a href="@routes.Home.index" accesskey="1" title="Home"><i class="fa fa-home fa-lg"></i>&nbsp;&nbsp;Home</a>
+
+            </div>
+            @if(session.get("email")) {
+                &nbsp;&nbsp;<i class="fa fa-user fa-lg"></i>&nbsp;&nbsp;@session.get("email")
+            }
+            <div class="image-login">
+                @if(session.get("email")) {
+                    <a href="@routes.Login.logout" accesskey="3" title="Logout">Logout&nbsp;&nbsp;<i class="fa fa-sign-out fa-lg"></i></a>
+                } else {
+                    <a href="@routes.Register.register" accesskey="2" title="Sign Up">Sign up&nbsp;&nbsp;<i class="fa fa-plus-circle fa-lg"></i></a>
+                    <a href="@routes.Login.login" accesskey="3" title="Login">Login&nbsp;&nbsp;<i class="fa fa-sign-in fa-lg"></i></a>
+                }
+
+            </div>
+        </div>
+        <div id="wrapper1">
+            @content
+        </div>
+    </body>
+</html>
