@@ -22,9 +22,9 @@ object Login extends Controller {
   def authenticateLogin = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(html.login(formWithErrors)),
-      user => Redirect(routes.Home.gettingStarted).withSession("email" -> user._1)
+      user => Redirect(routes.Home.gettingStarted()).withSession("email" -> user._1)
     )
   }
 
-  def logout = Action { Redirect(routes.Home.index).withNewSession }
+  def logout = Action { Redirect(routes.Home.index()).withNewSession }
 }

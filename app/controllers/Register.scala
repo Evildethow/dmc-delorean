@@ -24,7 +24,7 @@ object Register extends Controller {
       formWithErrors => BadRequest(html.register(formWithErrors)),
       user => {
         users.create(User(user._1, user._2))
-        Redirect(routes.Home.gettingStarted).withSession("email" -> user._1)
+        Redirect(routes.Home.gettingStarted()).withSession("email" -> user._1)
       }
     )
   }

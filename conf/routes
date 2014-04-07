@@ -4,6 +4,8 @@
 
 GET         /                       controllers.Home.index()
 
+GET   /users                        controllers.Application.listUsers
+
 # Authentication
 GET         /login                  controllers.Login.login
 POST        /login                  controllers.Login.authenticateLogin

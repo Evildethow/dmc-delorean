@@ -1,22 +1,55 @@
 @()(implicit session: play.api.mvc.Session)
 
-@main("Delorean") {
+    @main("Delorean") {
 
-    <div id="header-wrapper">
-        <div id="header" class="container">
-            <div id="logo"> <span class="icon icon-cogs"></span>
-                <h1><a href="#">Delorean</a></h1>
-                <span>if you're gonna do build automation, why not do it with some style? </span>
-            </div>
-            <div id="menu">
-                <ul>
-                    <li class="current_page_item"><a href="#" accesskey="1" title="">Homepage</a></li>
-                    <li><a href="@routes.Home.gettingStarted" accesskey="2" title="">Getting Started</a></li>
-                    <li><a href="@routes.Home.about" accesskey="3" title="">About Us</a></li>
-                    <li><a href="#" accesskey="4" title="">Careers</a></li>
-                    <li><a href="#" accesskey="5" title="">Contact Us</a></li>
-                </ul>
+        <div id="header-wrapper">
+            <div id="header" class="container">
+                <div id="logo"> <span class="icon icon-cogs"></span>
+                    <h1><a href="#">Delorean</a></h1>
+                    <span>if you're gonna do build automation, why not do it with some style? </span>
+                </div>
+                <div id="menu">
+                    <ul>
+                        <li class="current_page_item"><a href="#" accesskey="1" title="">Homepage</a></li>
+                        <li><a href="@routes.Home.gettingStarted" accesskey="2" title="">Getting Started</a></li>
+                        <li><a href="@routes.Home.about" accesskey="3" title="">About Us</a></li>
+                        <li><a href="#" accesskey="4" title="">Careers</a></li>
+                        <li><a href="#" accesskey="5" title="">Contact Us</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-}
+
+        <script type="text/javascript">
+            $( document ).ready(function() {
+                console.error( "document loaded" );
+                function User(data) {
+                    this.email = ko.observable(data.email);
+                    this.password = ko.observable(data.password);
+                }
+
+                function UserListViewModel() {
+                    // Data
+                    var self = this;
+                    self.users = ko.observableArray([]);
+
+                    $.getJSON("/users", function(allData) {
+                        var mappedUsers = $.map(allData, function(item) { return new User(item) });
+                        self.users(mappedUsers);
+                    });
+                }
+
+                ko.applyBindings(new UserListViewModel());
+            });
+
+
+
+        </script>
+
+        <ul data-bind="foreach: users, visible: users().length > 0">
+            <li>
+                <b data-bind="text: email" >&nbsp;</b>
+                <b data-bind="text: password" >&nbsp;</b>
+            </li>
+        </ul>
+    }

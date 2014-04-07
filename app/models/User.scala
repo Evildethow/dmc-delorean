@@ -11,28 +11,74 @@ class Users(tag: Tag) extends Table[User](tag, "USERS") {
   def email = column[String]("EMAIL", O.NotNull)
   def password = column[String]("PASSWORD", O.NotNull)
 
-  def * = (email, password, id) <> (User.tupled, User.unapply)
+  def * = (email, password, id) <>(User.tupled, User.unapply)
 }
 
 object users extends TableQuery(new Users(_)) {
 
-  private def isAuthenticatedQuery(email: Column[String], password: Column[String]) = {
-    filter(_.email === email).filter(_.password === password).exists
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._
+
+  implicit val reads: Reads[User] = (
+    (__ \ "email").read[String] and
+      (__ \ "password").read[String] and
+      (__ \ "id").readNullable[Int]
+    )(User.apply _)
+
+  implicit val writes: Writes[User] = (
+    (__ \ "email").write[String] and
+      (__ \ "password").write[String] and
+      (__ \ "id").writeNullable[Int]
+    )(unlift(User.unapply))
+
+  def list(): Seq[User] = {
+    DB withSession { implicit session =>
+      val query = for {
+        u <- users
+      } yield u
+      query.list
+    }
   }
-  private val isAuthenticatedCompiled = Compiled(isAuthenticatedQuery _)
 
-  def isAuthenticated(email: String, password: String) : Boolean = {
-    DB withSession { implicit session => isAuthenticatedCompiled(email, password).run }
+  def isAuthenticated(email: String, password: String) = {
+    DB withSession { implicit session =>
+      filter(_.email === email).filter(_.password === password).exists.run
+    }
   }
 
-  private val usersAutoInc = users returning users.map(_.id) into { case (u, id) => u.copy(id = id) }
+  private val usersAutoInc = users returning users.map(_.id) into {
+    case (u, id) => u.copy(id = id)
+  }
 
-  def create(user: User) : User = { DB withSession { implicit session => usersAutoInc.insert(user) } }
+  def create(user: User): User = {
+    DB withSession {
+      implicit session => usersAutoInc.insert(user)
+    }
+  }
 
-  private def existsQuery(email: Column[String]) = { filter(_.email === email).exists }
-  private val existsCompiled = Compiled(existsQuery _)
+  private val existsCompiled = {
+    def query(email: Column[String]) = filter(_.email === email).exists
+    Compiled(query _)
+  }
 
-  def exists(email: String) = { DB withSession { implicit session => existsCompiled(email).run } }
+  def exists(email: String) = {
+    DB withSession { implicit session => existsCompiled(email).run }
+  }
+}
 
+object UserJSON {
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._
 
+  implicit val reads: Reads[User] = (
+    (__ \ "email").read[String] and
+      (__ \ "password").read[String] and
+      (__ \ "id").readNullable[Int]
+    )(User.apply _)
+
+  implicit val writes: Writes[User] = (
+    (__ \ "email").write[String] and
+      (__ \ "password").write[String] and
+      (__ \ "id").writeNullable[Int]
+    )(unlift(User.unapply))
 }
